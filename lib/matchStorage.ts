@@ -87,6 +87,21 @@ export function deleteMatch(id: string) {
   writeAll(readAll().filter((match) => match.id !== id));
 }
 
+export function updateMatchTitle(id: string, title: string) {
+  const trimmed = title.trim();
+  if (!trimmed) return false;
+  const matches = readAll();
+  const index = matches.findIndex((match) => match.id === id);
+  if (index === -1) return false;
+  matches[index] = {
+    ...matches[index],
+    title: trimmed,
+    updatedAt: Date.now(),
+  };
+  writeAll(matches);
+  return true;
+}
+
 export function formatUpdatedAt(timestamp: number): string {
   return new Intl.DateTimeFormat("ja-JP", {
     month: "numeric",

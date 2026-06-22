@@ -10,6 +10,7 @@ export function BoardPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [matchId, setMatchId] = useState<string | null>(null);
+  const [matchTitle, setMatchTitle] = useState("");
   const [ready, setReady] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"saving" | "saved" | null>(null);
 
@@ -20,12 +21,14 @@ export function BoardPageClient() {
       router.replace(`/board?id=${match.id}`);
       return;
     }
-    if (!getMatch(id)) {
+    const saved = getMatch(id);
+    if (!saved) {
       const match = createMatch();
       router.replace(`/board?id=${match.id}`);
       return;
     }
     setMatchId(id);
+    setMatchTitle(saved.title);
     setReady(true);
   }, [router, searchParams]);
 
@@ -47,9 +50,14 @@ export function BoardPageClient() {
           >
             ← ホーム
           </Link>
-          <h1 className="text-base font-bold text-gray-900 dark:text-gray-100 sm:text-lg">
-            戦術ボード
-          </h1>
+          <input
+            type="text"
+            value={matchTitle}
+            onChange={(e) => setMatchTitle(e.target.value)}
+            placeholder="試合名"
+            aria-label="試合名"
+            className="min-w-0 max-w-[10rem] truncate rounded border border-transparent bg-transparent px-1 text-center text-base font-bold text-gray-900 outline-none transition-colors focus:border-gray-300 focus:bg-white dark:text-gray-100 dark:focus:border-gray-600 dark:focus:bg-gray-900 sm:max-w-[14rem] sm:text-lg"
+          />
           <span className="w-12 text-right text-[10px] text-gray-400 dark:text-gray-500 sm:w-14 sm:text-xs">
             {saveStatus === "saving" ? "保存中…" : saveStatus === "saved" ? "保存済み" : ""}
           </span>
@@ -57,7 +65,11 @@ export function BoardPageClient() {
       </header>
 
       <main className="flex min-h-0 flex-1 flex-col overflow-x-hidden px-1 py-0 pb-0.5 sm:px-2 sm:pb-1">
-        <TacticsBoard matchId={matchId} onSaveStatus={setSaveStatus} />
+        <TacticsBoard
+          matchId={matchId}
+          matchTitle={matchTitle}
+          onSaveStatus={setSaveStatus}
+        />
       </main>
     </div>
   );

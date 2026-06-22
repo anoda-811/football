@@ -2,12 +2,13 @@
 
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   createMatch,
   deleteMatch,
   formatUpdatedAt,
   listMatches,
+  updateMatchTitle,
   type MatchSummary,
 } from "@/lib/matchStorage";
 
@@ -15,6 +16,15 @@ export function HomeScreen() {
   const router = useRouter();
   const [matches, setMatches] = useState<MatchSummary[]>([]);
   const [ready, setReady] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredMatches = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return matches;
+    return matches.filter((match) => match.title.toLowerCase().includes(q));
+  }, [matches, searchQuery]);
 
   useEffect(() => {
     setMatches(listMatches());
@@ -38,6 +48,24 @@ export function HomeScreen() {
     if (!window.confirm(`「${title}」を削除しますか？`)) return;
     deleteMatch(id);
     refresh();
+  }
+
+  function startEdit(match: MatchSummary) {
+    setEditingId(match.id);
+    setEditTitle(match.title);
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditTitle("");
+  }
+
+  function commitEdit() {
+    if (!editingId) return;
+    if (updateMatchTitle(editingId, editTitle)) {
+      refresh();
+    }
+    cancelEdit();
   }
 
   return (
@@ -65,9 +93,42 @@ export function HomeScreen() {
         </button>
 
         <div className="mt-8 flex min-h-0 flex-1 flex-col">
-          <h2 className="mb-3 text-sm font-bold text-gray-700 dark:text-gray-300 sm:text-base">
-            保存した試合
-          </h2>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="text-sm font-bold text-gray-700 dark:text-gray-300 sm:text-base">
+              保存した試合
+            </h2>
+            {ready && matches.length > 0 && (
+              <span className="shrink-0 text-[11px] text-gray-400 dark:text-gray-500">
+                {searchQuery.trim()
+                  ? `${filteredMatches.length} / ${matches.length}件`
+                  : `${matches.length}件`}
+              </span>
+            )}
+          </div>
+
+          {ready && matches.length > 0 && (
+            <div className="relative mb-3">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="試合名で検索"
+                aria-label="試合名で検索"
+                autoComplete="off"
+                className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pr-9 pl-3 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-green-400 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-500 dark:focus:border-green-600"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute top-1/2 right-2 -translate-y-1/2 rounded-md px-2 py-0.5 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  aria-label="検索をクリア"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          )}
 
           {!ready ? (
             <p className="text-sm text-gray-400 dark:text-gray-500">読み込み中…</p>
@@ -80,36 +141,86 @@ export function HomeScreen() {
                 「新規試合」から作成してください
               </p>
             </div>
+          ) : filteredMatches.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 px-4 py-10 text-center dark:border-gray-700 dark:bg-gray-900">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                「{searchQuery.trim()}」に一致する試合がありません
+              </p>
+            </div>
           ) : (
             <ul className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-2">
-              {matches.map((match) => (
+              {filteredMatches.map((match) => (
                 <li key={match.id}>
-                  <div className="flex items-stretch gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleOpen(match.id)}
-                      className="flex min-w-0 flex-1 flex-col rounded-xl border border-gray-200 bg-white px-4 py-3 text-left shadow-sm transition-colors hover:border-green-300 hover:bg-green-50/40 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-green-700 dark:hover:bg-green-950/40"
-                    >
-                      <span className="truncate font-semibold text-gray-900 dark:text-gray-100">
-                        {match.title}
-                      </span>
-                      <span className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                        {match.awayName} {match.awayScore} - {match.homeScore}{" "}
-                        {match.homeName}
-                      </span>
-                      <span className="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
-                        更新: {formatUpdatedAt(match.updatedAt)}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(match.id, match.title)}
-                      className="shrink-0 rounded-xl border border-gray-200 px-3 text-xs text-gray-400 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-500 dark:border-gray-700 dark:hover:border-red-900 dark:hover:bg-red-950/50 dark:hover:text-red-400"
-                      aria-label={`${match.title}を削除`}
-                    >
-                      削除
-                    </button>
-                  </div>
+                  {editingId === match.id ? (
+                    <div className="rounded-xl border border-green-300 bg-white px-3 py-3 dark:border-green-700 dark:bg-gray-900">
+                      <label className="mb-1 block text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                        試合名
+                      </label>
+                      <input
+                        type="text"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") commitEdit();
+                          if (e.key === "Escape") cancelEdit();
+                        }}
+                        autoFocus
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-900 outline-none focus:border-green-400 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                      />
+                      <div className="mt-2 flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          className="rounded-lg px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        >
+                          キャンセル
+                        </button>
+                        <button
+                          type="button"
+                          onClick={commitEdit}
+                          disabled={!editTitle.trim()}
+                          className="rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-40"
+                        >
+                          保存
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-stretch gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleOpen(match.id)}
+                        className="flex min-w-0 flex-1 flex-col rounded-xl border border-gray-200 bg-white px-4 py-3 text-left shadow-sm transition-colors hover:border-green-300 hover:bg-green-50/40 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-green-700 dark:hover:bg-green-950/40"
+                      >
+                        <span className="truncate font-semibold text-gray-900 dark:text-gray-100">
+                          {match.title}
+                        </span>
+                        <span className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                          {match.awayName} {match.awayScore} - {match.homeScore}{" "}
+                          {match.homeName}
+                        </span>
+                        <span className="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
+                          更新: {formatUpdatedAt(match.updatedAt)}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => startEdit(match)}
+                        className="shrink-0 rounded-xl border border-gray-200 px-3 text-xs text-gray-500 transition-colors hover:border-green-200 hover:bg-green-50 hover:text-green-700 dark:border-gray-700 dark:hover:border-green-800 dark:hover:bg-green-950/50 dark:hover:text-green-400"
+                        aria-label={`${match.title}の名前を編集`}
+                      >
+                        編集
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(match.id, match.title)}
+                        className="shrink-0 rounded-xl border border-gray-200 px-3 text-xs text-gray-400 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-500 dark:border-gray-700 dark:hover:border-red-900 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+                        aria-label={`${match.title}を削除`}
+                      >
+                        削除
+                      </button>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>

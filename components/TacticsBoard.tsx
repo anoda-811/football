@@ -36,6 +36,7 @@ type Selection = {
 
 type TacticsBoardProps = {
   matchId: string;
+  matchTitle: string;
   onSaveStatus?: (status: "saving" | "saved") => void;
 };
 
@@ -45,7 +46,7 @@ function loadBoardState(matchId: string): BoardState {
   return normalizeBoardState(saved);
 }
 
-export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
+export function TacticsBoard({ matchId, matchTitle, onSaveStatus }: TacticsBoardProps) {
   const initial = loadBoardState(matchId);
   const skipSave = useRef(true);
   const pitchRef = useRef<HTMLDivElement>(null);
@@ -129,7 +130,7 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
       };
       saveMatch({
         id: matchId,
-        title: formatMatchTitle(data),
+        title: matchTitle.trim() || formatMatchTitle(data),
         updatedAt: Date.now(),
         data,
       });
@@ -139,6 +140,7 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
     return () => window.clearTimeout(id);
   }, [
     matchId,
+    matchTitle,
     onSaveStatus,
     awayTeam,
     homeTeam,
