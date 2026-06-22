@@ -56,7 +56,7 @@ export function BoardPageClient() {
         </div>
       </header>
 
-      <main className="flex min-h-0 flex-1 flex-col px-1 py-0 sm:px-2">
+      <main className="flex min-h-0 flex-1 flex-col px-1 py-0 pb-0.5 sm:px-2 sm:pb-1">
         <TacticsBoard matchId={matchId} onSaveStatus={setSaveStatus} />
       </main>
     </div>

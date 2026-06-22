@@ -334,7 +334,7 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
             onReset={resetTimer}
           />
           </div>
-          <div className="absolute top-full left-1/2 z-10 mt-0.5 flex -translate-x-1/2 items-center justify-center gap-1.5 sm:mt-1 sm:gap-2">
+          <div className="mt-0.5 flex items-center justify-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={swapHalftime}
@@ -365,7 +365,7 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
         />
       </div>
 
-      <div className="-mt-1 flex min-h-0 flex-1 items-stretch sm:-mt-1.5">
+      <div className="mt-0.5 flex min-h-0 flex-1 items-stretch pb-1 sm:pb-1.5">
         <PlayerBench
           side="left"
           label="左サブ"
@@ -385,26 +385,28 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
           }
         />
 
-        <div className="flex min-h-0 min-w-0 flex-1 items-center justify-center px-0">
-          <div
-            ref={pitchRef}
-            className="@container relative aspect-[3/2] h-full max-h-full w-auto max-w-full overflow-hidden rounded-lg border-2 border-green-700 bg-white shadow-lg dark:border-green-600 dark:shadow-green-950/20"
-          >
-            <SoccerPitch />
-            {renderPitchTeam("away", awayColor)}
-            {renderPitchTeam("home", homeColor)}
-            <SoccerBall
-              x={ballPosition.x}
-              y={ballPosition.y}
-              pitchRef={pitchRef}
-              onPositionChange={(x, y) => setBallPosition({ x, y })}
-            />
-            <PitchDrawing
-              tool={drawTool}
-              penColor={penColor}
-              strokes={drawStrokes}
-              onStrokesChange={setDrawStrokes}
-            />
+        <div className="box-border flex min-h-0 min-w-0 flex-1 items-start justify-center px-0 pb-1 sm:pb-1.5">
+          <div className="flex h-full w-full items-start justify-center">
+            <div
+              ref={pitchRef}
+              className="@container relative aspect-[3/2] h-full max-h-full w-auto max-w-full overflow-hidden rounded-lg border-2 border-green-700 bg-white shadow-lg dark:border-green-600 dark:shadow-green-950/20"
+            >
+              <SoccerPitch />
+              {renderPitchTeam("away", awayColor)}
+              {renderPitchTeam("home", homeColor)}
+              <SoccerBall
+                x={ballPosition.x}
+                y={ballPosition.y}
+                pitchRef={pitchRef}
+                onPositionChange={(x, y) => setBallPosition({ x, y })}
+              />
+              <PitchDrawing
+                tool={drawTool}
+                penColor={penColor}
+                strokes={drawStrokes}
+                onStrokesChange={setDrawStrokes}
+              />
+            </div>
           </div>
         </div>
 
