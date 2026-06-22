@@ -1,3 +1,7 @@
+import { DEFAULT_BENCH_SIZE } from "@/lib/presets/squadSizes";
+
+export { DEFAULT_BENCH_SIZE };
+
 export type PlayerInfo = {
   number: number;
   name: string;
@@ -105,8 +109,8 @@ const FORMATION_POSITIONS: Record<FormationId, Position[]> = {
     { x: 32, y: 38 },
     { x: 32, y: 62 },
     { x: 28, y: 88 },
-    { x: 38, y: 38 },
-    { x: 38, y: 62 },
+    { x: 40, y: 26 },
+    { x: 40, y: 74 },
     { x: 44, y: 50 },
   ],
 };
@@ -125,8 +129,6 @@ const starterNames = [
   "FW",
 ];
 
-const subNames = ["SUB", "SUB", "SUB", "SUB", "SUB", "SUB", "SUB"];
-
 export function getFormationPositions(
   formationId: FormationId,
   side: "away" | "home",
@@ -140,6 +142,7 @@ export function buildTeam(
   prefix: string,
   side: "away" | "home",
   formationId: FormationId = "4-3-3",
+  benchSize: number = DEFAULT_BENCH_SIZE,
 ): TeamState {
   const positions = getFormationPositions(formationId, side);
   const pitch: PitchSlot[] = positions.map((pos, i) => ({
@@ -149,9 +152,9 @@ export function buildTeam(
     player: { number: i + 1, name: starterNames[i] },
   }));
 
-  const bench: BenchSlot[] = subNames.map((name, i) => ({
+  const bench: BenchSlot[] = Array.from({ length: benchSize }, (_, i) => ({
     slotId: `${prefix}-bench-${i + 1}`,
-    player: { number: 12 + i, name },
+    player: { number: 12 + i, name: "SUB" },
   }));
 
   return { pitch, bench };
@@ -176,12 +179,17 @@ export function applyFormationToTeam(
   };
 }
 
+export function mirrorPitchPosition(x: number, y: number) {
+  return { x: 100 - x, y: 100 - y };
+}
+
+/** 後半の陣地入れ替え: 攻守方向の反転（左右＋上下） */
 export function mirrorTeamPositions(team: TeamState): TeamState {
   return {
     ...team,
-    pitch: team.pitch.map((slot) => ({
-      ...slot,
-      x: 100 - slot.x,
-    })),
+    pitch: team.pitch.map((slot) => {
+      const pos = mirrorPitchPosition(slot.x, slot.y);
+      return { ...slot, ...pos };
+    }),
   };
 }

@@ -1,4 +1,5 @@
 import type { FormationId, PlayerInfo } from "@/lib/formations";
+import { getBenchSizeForCategory } from "./squadSizes";
 import type { SquadPool, TeamPreset, TeamPresetCategory } from "./types";
 
 export function p(number: number, name: string): PlayerInfo {
@@ -25,7 +26,18 @@ export function poolFromEntries(entries: {
   };
 }
 
-export function lineupFromPool(pool: SquadPool): {
+function flattenPool(pool: SquadPool): PlayerInfo[] {
+  return [...pool.gk, ...pool.df, ...pool.mf, ...pool.fw];
+}
+
+function playerKey(player: PlayerInfo): string {
+  return `${player.number}:${player.name}`;
+}
+
+export function lineupFromPool(
+  pool: SquadPool,
+  benchSize: number,
+): {
   starters: PlayerInfo[];
   subs: PlayerInfo[];
 } {
@@ -36,23 +48,18 @@ export function lineupFromPool(pool: SquadPool): {
     ...pool.fw.slice(0, 3),
   ].filter(Boolean);
 
-  const subCandidates = [
-    pool.gk[1],
-    pool.gk[2],
-    ...pool.df.slice(4),
-    ...pool.mf.slice(3),
-    ...pool.fw.slice(3),
-  ].filter(Boolean);
-
+  const starterKeys = new Set(starters.map(playerKey));
   const subs: PlayerInfo[] = [];
-  for (const player of subCandidates) {
-    if (subs.length >= 7) break;
-    if (!subs.some((item) => item.name === player.name)) {
-      subs.push(player);
-    }
+
+  for (const player of flattenPool(pool)) {
+    if (subs.length >= benchSize) break;
+    const key = playerKey(player);
+    if (starterKeys.has(key)) continue;
+    if (subs.some((item) => playerKey(item) === key)) continue;
+    subs.push(player);
   }
 
-  while (subs.length < 7) {
+  while (subs.length < benchSize) {
     subs.push(p(12 + subs.length, `SUB${subs.length + 1}`));
   }
 
@@ -68,7 +75,8 @@ export function createPreset(
   pool: SquadPool,
   formation: FormationId = "4-3-3",
 ): TeamPreset {
-  const { starters, subs } = lineupFromPool(pool);
+  const benchSize = getBenchSizeForCategory(category);
+  const { starters, subs } = lineupFromPool(pool, benchSize);
   return {
     id,
     category,
@@ -76,6 +84,7 @@ export function createPreset(
     keywords,
     formation,
     note,
+    benchSize,
     starters,
     subs,
   };

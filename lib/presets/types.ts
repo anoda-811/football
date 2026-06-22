@@ -14,6 +14,7 @@ export type TeamPreset = {
   keywords: string[];
   formation: FormationId;
   note: string;
+  benchSize: number;
   starters: PlayerInfo[];
   subs: PlayerInfo[];
 };

@@ -27,49 +27,42 @@ export function TeamSettings({
   onFormationChange,
   onPresetSelect,
 }: TeamSettingsProps) {
-  const alignClass =
-    side === "right"
-      ? "items-end pr-2 text-right sm:pr-3"
-      : "items-start text-left";
-
   return (
-    <div
-      className={`flex w-[7.5rem] shrink-0 flex-col gap-1.5 sm:w-32 ${alignClass}`}
-    >
+    <div className="flex w-full flex-col gap-1.5">
       <span
-        className="w-full text-xs font-bold leading-tight sm:text-sm"
+        className={`w-full text-xs font-bold leading-tight sm:text-sm ${side === "right" ? "text-right" : "text-left"}`}
         style={{ color: teamColor }}
       >
         {label}
       </span>
 
-      <input
-        type="text"
-        value={teamName}
-        onChange={(e) => onTeamNameChange(e.target.value)}
-        className={`w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-gray-800 outline-none focus:border-green-600 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 sm:text-sm ${side === "right" ? "text-right" : ""}`}
-        placeholder="チーム名"
-      />
+      <div className="flex w-full flex-col items-center gap-1.5">
+        <input
+          type="text"
+          value={teamName}
+          onChange={(e) => onTeamNameChange(e.target.value)}
+          className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-center text-xs font-semibold text-gray-800 outline-none focus:border-green-600 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 sm:text-sm"
+          placeholder="チーム名"
+        />
 
-      <select
-        value={formation}
-        onChange={(e) => onFormationChange(e.target.value as FormationId)}
-        className={`w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs text-gray-800 outline-none focus:border-green-600 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 sm:text-sm ${side === "right" ? "text-right" : ""}`}
-      >
-        {FORMATION_OPTIONS.map((opt) => (
-          <option key={opt.id} value={opt.id}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+        <select
+          value={formation}
+          onChange={(e) => onFormationChange(e.target.value as FormationId)}
+          className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-center text-xs text-gray-800 outline-none focus:border-green-600 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 sm:text-sm"
+        >
+          {FORMATION_OPTIONS.map((opt) => (
+            <option key={opt.id} value={opt.id}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
 
-      {onPresetSelect && (
-        <TeamPresetPicker side={side} onSelect={onPresetSelect} />
-      )}
+        {onPresetSelect && (
+          <TeamPresetPicker side={side} onSelect={onPresetSelect} />
+        )}
+      </div>
 
-      <div
-        className={`grid grid-cols-6 gap-1.5 ${side === "right" ? "ml-auto w-fit" : "w-full"}`}
-      >
+      <div className="mx-auto grid w-fit grid-cols-6 gap-1.5">
         {TEAM_COLOR_OPTIONS.map((opt) => (
           <button
             key={opt.id}

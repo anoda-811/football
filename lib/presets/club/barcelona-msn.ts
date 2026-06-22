@@ -25,7 +25,7 @@ export const BARCELONA_MSN_PRESET: TeamPreset = createPreset(
     "ブスケツ",
     "busquets",
   ],
-  "2014-15 · トリプル",
+  "2014-15 · トリプル · 20人",
   poolFromEntries({
     gk: ["1|テル・ステーゲン", "13|ブラボ"],
     df: [

@@ -3,6 +3,7 @@
 import {
   applyFormationToTeam,
   mirrorTeamPositions,
+  mirrorPitchPosition,
   type FormationId,
   type TeamState,
 } from "@/lib/formations";
@@ -231,7 +232,13 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
     setHomeScore(awayScore);
     setAwayMemo(homeMemo);
     setHomeMemo(awayMemo);
-    setBallPosition((pos) => ({ x: 100 - pos.x, y: pos.y }));
+    setBallPosition((pos) => mirrorPitchPosition(pos.x, pos.y));
+    setDrawStrokes((strokes) =>
+      strokes.map((stroke) => ({
+        ...stroke,
+        points: stroke.points.map((p) => mirrorPitchPosition(p.x, p.y)),
+      })),
+    );
     setSelection(null);
     setOpenMemo(null);
   }
@@ -341,41 +348,45 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
     ));
   }
 
+  const sideColumnBase = "w-[13.5rem] shrink-0 sm:w-[14rem]";
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-x-hidden">
-      <div className="mb-0 flex shrink-0 items-start justify-between gap-1 pt-1 sm:gap-2 sm:pt-1.5">
-        <TeamSettings
-          side="left"
-          label="左サイド"
-          teamName={awayName}
-          teamColor={awayColor}
-          formation={awayFormation}
-          onTeamNameChange={setAwayName}
-          onColorChange={setAwayColor}
-          onFormationChange={(id) => handleFormationChange("away", id)}
-          onPresetSelect={(id) => applyTeamPreset("away", id)}
-        />
-
-        <div className="relative flex min-w-0 flex-1 flex-col items-center">
-          <div className="w-1/2 min-w-[10.5rem] shrink-0">
-            <Scoreboard
-            awayName={awayName}
-            homeName={homeName}
-            awayScore={awayScore}
-            homeScore={homeScore}
-            awayColor={awayColor}
-            homeColor={homeColor}
-            elapsed={elapsed}
-            isRunning={isRunning}
-            onAwayNameChange={setAwayName}
-            onHomeNameChange={setHomeName}
-            onAwayScoreChange={setAwayScore}
-            onHomeScoreChange={setHomeScore}
-            onToggleRunning={() => setIsRunning((r) => !r)}
-            onReset={resetTimer}
+      <div className="relative grid min-h-0 flex-1 grid-cols-[auto_minmax(0,1fr)_auto] grid-rows-[auto_minmax(0,1fr)] gap-x-1 overflow-x-hidden pb-1 sm:gap-x-2 sm:pb-1.5">
+        <div className={`${sideColumnBase} pt-1.5 sm:pt-2`}>
+          <TeamSettings
+            side="left"
+            label="左サイド"
+            teamName={awayName}
+            teamColor={awayColor}
+            formation={awayFormation}
+            onTeamNameChange={setAwayName}
+            onColorChange={setAwayColor}
+            onFormationChange={(id) => handleFormationChange("away", id)}
+            onPresetSelect={(id) => applyTeamPreset("away", id)}
           />
+        </div>
+
+        <div className="flex min-w-0 flex-col items-center pt-1.5 sm:pt-2">
+          <div className="w-1/2 min-w-[10.5rem]">
+            <Scoreboard
+              awayName={awayName}
+              homeName={homeName}
+              awayScore={awayScore}
+              homeScore={homeScore}
+              awayColor={awayColor}
+              homeColor={homeColor}
+              elapsed={elapsed}
+              isRunning={isRunning}
+              onAwayNameChange={setAwayName}
+              onHomeNameChange={setHomeName}
+              onAwayScoreChange={setAwayScore}
+              onHomeScoreChange={setHomeScore}
+              onToggleRunning={() => setIsRunning((r) => !r)}
+              onReset={resetTimer}
+            />
           </div>
-          <div className="mt-0.5 flex items-center justify-center gap-1.5 sm:gap-2">
+          <div className="mt-1 flex items-center justify-center gap-1.5 sm:mt-1.5 sm:gap-2">
             <button
               type="button"
               onClick={swapHalftime}
@@ -394,82 +405,82 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
           </div>
         </div>
 
-        <TeamSettings
-          side="right"
-          label="右サイド"
-          teamName={homeName}
-          teamColor={homeColor}
-          formation={homeFormation}
-          onTeamNameChange={setHomeName}
-          onColorChange={setHomeColor}
-          onFormationChange={(id) => handleFormationChange("home", id)}
-          onPresetSelect={(id) => applyTeamPreset("home", id)}
-        />
-      </div>
+        <div className={`${sideColumnBase} pt-1.5 sm:pt-2`}>
+          <TeamSettings
+            side="right"
+            label="右サイド"
+            teamName={homeName}
+            teamColor={homeColor}
+            formation={homeFormation}
+            onTeamNameChange={setHomeName}
+            onColorChange={setHomeColor}
+            onFormationChange={(id) => handleFormationChange("home", id)}
+            onPresetSelect={(id) => applyTeamPreset("home", id)}
+          />
+        </div>
 
-      <div className="relative mt-0.5 flex min-h-0 flex-1 items-stretch overflow-x-hidden pb-1 sm:pb-1.5">
-        <PlayerBench
-          side="left"
-          label="左サブ"
-          bench={awayTeam.bench}
-          teamColor={awayColor}
-          selectedSlotId={
-            selection?.team === "away" && selection.type === "bench"
-              ? selection.slotId
-              : null
-          }
-          onSelect={(slotId) => handleSelect("away", "bench", slotId)}
-          onNameChange={(slotId, name) =>
-            updatePlayer("away", "bench", slotId, "name", name)
-          }
-          onNumberChange={(slotId, number) =>
-            updatePlayer("away", "bench", slotId, "number", number)
-          }
-        />
+        <div className={`${sideColumnBase} flex flex-col items-center pt-2.5 sm:pt-3`}>
+          <PlayerBench
+            label="左サブ"
+            bench={awayTeam.bench}
+            teamColor={awayColor}
+            selectedSlotId={
+              selection?.team === "away" && selection.type === "bench"
+                ? selection.slotId
+                : null
+            }
+            onSelect={(slotId) => handleSelect("away", "bench", slotId)}
+            onNameChange={(slotId, name) =>
+              updatePlayer("away", "bench", slotId, "name", name)
+            }
+            onNumberChange={(slotId, number) =>
+              updatePlayer("away", "bench", slotId, "number", number)
+            }
+          />
+        </div>
 
-        <div className="box-border flex min-h-0 min-w-0 flex-1 items-start justify-center px-0 pb-1 sm:pb-1.5">
-          <div className="flex h-full w-full items-start justify-center">
-            <div
-              ref={pitchRef}
-              className="@container relative aspect-[3/2] h-full max-h-full w-auto max-w-full overflow-hidden rounded-lg border-2 border-green-700 bg-white shadow-lg dark:border-green-600 dark:shadow-green-950/20"
-            >
-              <SoccerPitch />
-              {renderPitchTeam("away", awayColor)}
-              {renderPitchTeam("home", homeColor)}
-              <SoccerBall
-                x={ballPosition.x}
-                y={ballPosition.y}
-                pitchRef={pitchRef}
-                onPositionChange={(x, y) => setBallPosition({ x, y })}
-              />
-              <PitchDrawing
-                tool={drawTool}
-                penColor={penColor}
-                strokes={drawStrokes}
-                onStrokesChange={setDrawStrokes}
-              />
-            </div>
+        <div className="flex h-full min-h-0 items-start justify-center">
+          <div
+            ref={pitchRef}
+            className="@container relative aspect-[3/2] h-full max-h-full w-auto max-w-full overflow-hidden rounded-lg border-2 border-green-700 bg-white shadow-lg dark:border-green-600 dark:shadow-green-950/20"
+          >
+            <SoccerPitch />
+            {renderPitchTeam("away", awayColor)}
+            {renderPitchTeam("home", homeColor)}
+            <SoccerBall
+              x={ballPosition.x}
+              y={ballPosition.y}
+              pitchRef={pitchRef}
+              onPositionChange={(x, y) => setBallPosition({ x, y })}
+            />
+            <PitchDrawing
+              tool={drawTool}
+              penColor={penColor}
+              strokes={drawStrokes}
+              onStrokesChange={setDrawStrokes}
+            />
           </div>
         </div>
 
-        <PlayerBench
-          side="right"
-          label="右サブ"
-          bench={homeTeam.bench}
-          teamColor={homeColor}
-          selectedSlotId={
-            selection?.team === "home" && selection.type === "bench"
-              ? selection.slotId
-              : null
-          }
-          onSelect={(slotId) => handleSelect("home", "bench", slotId)}
-          onNameChange={(slotId, name) =>
-            updatePlayer("home", "bench", slotId, "name", name)
-          }
-          onNumberChange={(slotId, number) =>
-            updatePlayer("home", "bench", slotId, "number", number)
-          }
-        />
+        <div className={`${sideColumnBase} flex flex-col items-center pt-2.5 sm:pt-3`}>
+          <PlayerBench
+            label="右サブ"
+            bench={homeTeam.bench}
+            teamColor={homeColor}
+            selectedSlotId={
+              selection?.team === "home" && selection.type === "bench"
+                ? selection.slotId
+                : null
+            }
+            onSelect={(slotId) => handleSelect("home", "bench", slotId)}
+            onNameChange={(slotId, name) =>
+              updatePlayer("home", "bench", slotId, "name", name)
+            }
+            onNumberChange={(slotId, number) =>
+              updatePlayer("home", "bench", slotId, "number", number)
+            }
+          />
+        </div>
 
         {openMemo === null && (
           <>

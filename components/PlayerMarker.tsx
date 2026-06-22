@@ -72,11 +72,20 @@ export function PlayerMarker({
     setEditingNumber(true);
   }
 
-  function focusNameInput() {
-    const input = nameInputRef.current;
-    if (!input) return;
-    input.focus();
-    input.select();
+  function exitNameEdit() {
+    setEditingName(false);
+  }
+
+  function enterNameEdit(e: React.MouseEvent | React.PointerEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+    setEditingName(true);
+    requestAnimationFrame(() => {
+      const input = nameInputRef.current;
+      if (!input) return;
+      input.focus();
+      input.select();
+    });
   }
 
   function handlePointerDown(e: React.PointerEvent) {
@@ -141,8 +150,8 @@ export function PlayerMarker({
       : "w-full text-xs sm:text-sm";
   const nameHitClass =
     variant === "pitch"
-      ? "w-[clamp(2rem,7cqw,4rem)]"
-      : "w-[2.75rem] sm:w-[3.25rem]";
+      ? "w-[clamp(2.5rem,9cqw,5rem)]"
+      : "w-[3.25rem] sm:w-[4rem]";
   const nameColorClass =
     variant === "pitch"
       ? "text-black placeholder:text-gray-400"
@@ -188,15 +197,19 @@ export function PlayerMarker({
   const marker = (
     <div className="pointer-events-none flex flex-col items-center">
       {circle}
-      <div className={`${nameWrapClass} relative flex justify-center`}>
+      <div className={`${nameWrapClass} pointer-events-none relative flex justify-center`}>
         <input
           ref={nameInputRef}
           type="text"
           value={player.name}
           onChange={(e) => onNameChange(e.target.value)}
-          onFocus={() => setEditingName(true)}
-          onBlur={() => setEditingName(false)}
-          tabIndex={-1}
+          onBlur={exitNameEdit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.currentTarget.blur();
+            }
+          }}
+          readOnly={!editingName}
           className={`${nameInputClass} border-none bg-transparent text-center font-bold outline-none placeholder:font-normal ${nameColorClass} ${
             editingName ? "pointer-events-auto" : "pointer-events-none"
           }`}
@@ -206,13 +219,10 @@ export function PlayerMarker({
         {!editingName && (
           <button
             type="button"
-            tabIndex={-1}
             aria-label={`${player.number}番の選手名を編集`}
             className={`${nameHitClass} pointer-events-auto absolute inset-y-0 left-1/2 -translate-x-1/2 cursor-text rounded bg-transparent`}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              focusNameInput();
-            }}
+            onMouseDown={enterNameEdit}
+            onPointerDown={enterNameEdit}
           />
         )}
       </div>

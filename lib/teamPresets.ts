@@ -36,6 +36,11 @@ export function buildTeamFromPreset(
   side: "away" | "home",
   preset: TeamPreset,
 ): TeamState {
-  const base = buildTeam(prefix, side, preset.formation as FormationId);
+  const base = buildTeam(
+    prefix,
+    side,
+    preset.formation as FormationId,
+    preset.benchSize,
+  );
   return applyPlayersToTeam(base, preset.starters, preset.subs);
 }

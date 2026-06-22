@@ -22,7 +22,7 @@ export function TeamPresetPicker({ side, onSelect }: TeamPresetPickerProps) {
     [query, category],
   );
 
-  const alignClass = side === "right" ? "text-right" : "text-left";
+  const alignClass = "text-center";
 
   function handleSelect(presetId: string) {
     onSelect(presetId);
@@ -35,7 +35,7 @@ export function TeamPresetPicker({ side, onSelect }: TeamPresetPickerProps) {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className={`w-full rounded border border-dashed border-gray-300 bg-gray-50 px-2 py-1 text-[10px] font-semibold text-gray-600 transition-colors hover:border-green-400 hover:bg-green-50/50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-green-600 dark:hover:bg-green-950/30 sm:text-xs ${side === "right" ? "text-right" : "text-left"}`}
+        className={`w-full rounded border border-dashed border-gray-300 bg-gray-50 px-2 py-1 text-center text-[10px] font-semibold text-gray-600 transition-colors hover:border-green-400 hover:bg-green-50/50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-green-600 dark:hover:bg-green-950/30 sm:text-xs`}
       >
         メンバー選択
       </button>
@@ -49,9 +49,7 @@ export function TeamPresetPicker({ side, onSelect }: TeamPresetPickerProps) {
             onClick={() => setOpen(false)}
           />
           <div
-            className={`absolute top-full z-50 mt-1 w-[11.5rem] rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-900 sm:w-52 ${
-              side === "right" ? "right-0" : "left-0"
-            }`}
+            className={`absolute top-full z-50 mt-1 w-[11.5rem] rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-900 sm:w-52 left-1/2 -translate-x-1/2`}
           >
             <div className="flex gap-1">
               {PRESET_CATEGORIES.map((item) => (

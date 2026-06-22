@@ -1,5 +1,6 @@
 import { ARSENAL_PRESET } from "./club/arsenal";
 import { BARCELONA_MSN_PRESET } from "./club/barcelona-msn";
+import { JAPAN_PRESET } from "./national/japan";
 import { WC2026_PRESETS } from "./national/wc2026";
 import type { TeamPreset, TeamPresetCategory, TeamPresetCategoryInfo } from "./types";
 
@@ -10,8 +11,11 @@ export const PRESET_CATEGORIES: TeamPresetCategoryInfo[] = [
   { id: "club", label: "クラブ" },
 ];
 
+const WC2026_WITHOUT_JAPAN = WC2026_PRESETS.filter((preset) => preset.id !== "japan");
+
 export const TEAM_PRESETS: TeamPreset[] = [
-  ...WC2026_PRESETS,
+  ...WC2026_WITHOUT_JAPAN,
+  JAPAN_PRESET,
   ARSENAL_PRESET,
   BARCELONA_MSN_PRESET,
 ];

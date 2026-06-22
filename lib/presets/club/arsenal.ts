@@ -6,7 +6,7 @@ export const ARSENAL_PRESET: TeamPreset = createPreset(
   "club",
   "アーセナル",
   ["arsenal", "gunners", "アーセナル", "プレミア"],
-  "2025/26",
+  "2025/26 · 20人",
   poolFromEntries({
     gk: ["1|ラヤ", "13|ネト", "31|ハイン"],
     df: ["2|ホワイト", "6|ガブリエル", "12|ティンバー", "4|サリバ", "15|キヴィオール", "3|モスケラ", "5|ヒンカピエ"],
