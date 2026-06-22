@@ -13,6 +13,7 @@ import {
   type BoardState,
 } from "@/lib/boardState";
 import { getMatch, saveMatch } from "@/lib/matchStorage";
+import { buildTeamFromPreset, getTeamPreset } from "@/lib/teamPresets";
 import { AnalysisMemoPanel, MemoBackdrop, MemoToggleButton } from "./AnalysisMemoPanel";
 import { DrawingToolbar, type DrawStroke, type DrawTool, type PenColor } from "./DrawingToolbar";
 import { PitchDrawing } from "./PitchDrawing";
@@ -239,6 +240,26 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
     setOpenMemo((current) => (current === side ? null : side));
   }
 
+  function applyTeamPreset(team: "home" | "away", presetId: string) {
+    const preset = getTeamPreset(presetId);
+    if (!preset) return;
+
+    const side = team === "away" ? "away" : "home";
+    const prefix = team === "away" ? "away" : "home";
+    const nextTeam = buildTeamFromPreset(prefix, side, preset);
+
+    if (team === "away") {
+      setAwayTeam(nextTeam);
+      setAwayName(preset.displayName);
+      setAwayFormation(preset.formation);
+    } else {
+      setHomeTeam(nextTeam);
+      setHomeName(preset.displayName);
+      setHomeFormation(preset.formation);
+    }
+    setSelection(null);
+  }
+
   function swapPlayers(team: "home" | "away", pitchSlotId: string, benchSlotId: string) {
     getSetter(team)((prev) => {
       const pitchIdx = prev.pitch.findIndex((s) => s.slotId === pitchSlotId);
@@ -332,6 +353,7 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
           onTeamNameChange={setAwayName}
           onColorChange={setAwayColor}
           onFormationChange={(id) => handleFormationChange("away", id)}
+          onPresetSelect={(id) => applyTeamPreset("away", id)}
         />
 
         <div className="relative flex min-w-0 flex-1 flex-col items-center">
@@ -381,6 +403,7 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
           onTeamNameChange={setHomeName}
           onColorChange={setHomeColor}
           onFormationChange={(id) => handleFormationChange("home", id)}
+          onPresetSelect={(id) => applyTeamPreset("home", id)}
         />
       </div>
 

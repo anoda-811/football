@@ -2,6 +2,7 @@
 
 import { FORMATION_OPTIONS, type FormationId } from "@/lib/formations";
 import { TEAM_COLOR_OPTIONS } from "@/lib/teamColors";
+import { TeamPresetPicker } from "./TeamPresetPicker";
 
 type TeamSettingsProps = {
   label: string;
@@ -12,6 +13,7 @@ type TeamSettingsProps = {
   onTeamNameChange: (name: string) => void;
   onColorChange: (color: string) => void;
   onFormationChange: (id: FormationId) => void;
+  onPresetSelect?: (presetId: string) => void;
 };
 
 export function TeamSettings({
@@ -23,6 +25,7 @@ export function TeamSettings({
   onTeamNameChange,
   onColorChange,
   onFormationChange,
+  onPresetSelect,
 }: TeamSettingsProps) {
   const alignClass =
     side === "right"
@@ -59,6 +62,10 @@ export function TeamSettings({
           </option>
         ))}
       </select>
+
+      {onPresetSelect && (
+        <TeamPresetPicker side={side} onSelect={onPresetSelect} />
+      )}
 
       <div
         className={`grid grid-cols-6 gap-1.5 ${side === "right" ? "ml-auto w-fit" : "w-full"}`}
