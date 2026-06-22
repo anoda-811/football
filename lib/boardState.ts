@@ -25,6 +25,8 @@ export type BoardState = {
   isRunning: boolean;
   ballPosition: { x: number; y: number };
   drawStrokes: DrawStroke[];
+  awayMemo: string;
+  homeMemo: string;
 };
 
 export function createDefaultBoardState(): BoardState {
@@ -43,6 +45,8 @@ export function createDefaultBoardState(): BoardState {
     isRunning: false,
     ballPosition: { x: 50, y: 50 },
     drawStrokes: [],
+    awayMemo: "",
+    homeMemo: "",
   };
 }
 
@@ -50,4 +54,15 @@ export function formatMatchTitle(state: BoardState): string {
   const left = state.awayName.trim() || "左";
   const right = state.homeName.trim() || "右";
   return `${left} vs ${right}`;
+}
+
+export function normalizeBoardState(partial: Partial<BoardState>): BoardState {
+  const defaults = createDefaultBoardState();
+  return {
+    ...defaults,
+    ...partial,
+    awayMemo: partial.awayMemo ?? defaults.awayMemo,
+    homeMemo: partial.homeMemo ?? defaults.homeMemo,
+    isRunning: false,
+  };
 }

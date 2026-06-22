@@ -38,7 +38,7 @@ export function BoardPageClient() {
   }
 
   return (
-    <div className="flex h-dvh flex-col bg-white dark:bg-gray-950">
+    <div className="flex h-dvh flex-col overflow-x-hidden bg-white dark:bg-gray-950">
       <header className="shrink-0 border-b border-gray-200 px-2 py-1 dark:border-gray-800 sm:px-3">
         <div className="flex items-center justify-between">
           <Link
@@ -56,7 +56,7 @@ export function BoardPageClient() {
         </div>
       </header>
 
-      <main className="flex min-h-0 flex-1 flex-col px-1 py-0 pb-0.5 sm:px-2 sm:pb-1">
+      <main className="flex min-h-0 flex-1 flex-col overflow-x-hidden px-1 py-0 pb-0.5 sm:px-2 sm:pb-1">
         <TacticsBoard matchId={matchId} onSaveStatus={setSaveStatus} />
       </main>
     </div>

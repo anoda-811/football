@@ -9,9 +9,11 @@ import {
 import {
   createDefaultBoardState,
   formatMatchTitle,
+  normalizeBoardState,
   type BoardState,
 } from "@/lib/boardState";
 import { getMatch, saveMatch } from "@/lib/matchStorage";
+import { AnalysisMemoPanel, MemoBackdrop, MemoToggleButton } from "./AnalysisMemoPanel";
 import { DrawingToolbar, type DrawStroke, type DrawTool, type PenColor } from "./DrawingToolbar";
 import { PitchDrawing } from "./PitchDrawing";
 import { PlayerBench } from "./PlayerBench";
@@ -38,7 +40,7 @@ type TacticsBoardProps = {
 function loadBoardState(matchId: string): BoardState {
   const saved = getMatch(matchId)?.data;
   if (!saved) return createDefaultBoardState();
-  return { ...saved, isRunning: false };
+  return normalizeBoardState(saved);
 }
 
 export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
@@ -62,6 +64,9 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
   const [drawTool, setDrawTool] = useState<DrawTool>(null);
   const [penColor, setPenColor] = useState<PenColor>("#facc15");
   const [drawStrokes, setDrawStrokes] = useState<DrawStroke[]>(initial.drawStrokes);
+  const [awayMemo, setAwayMemo] = useState(initial.awayMemo);
+  const [homeMemo, setHomeMemo] = useState(initial.homeMemo);
+  const [openMemo, setOpenMemo] = useState<"left" | "right" | null>(null);
 
   useEffect(() => {
     skipSave.current = true;
@@ -81,6 +86,9 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
     setSelection(null);
     setBallPosition(next.ballPosition);
     setDrawStrokes(next.drawStrokes);
+    setAwayMemo(next.awayMemo);
+    setHomeMemo(next.homeMemo);
+    setOpenMemo(null);
     setDrawTool(null);
     const id = window.setTimeout(() => {
       skipSave.current = false;
@@ -114,6 +122,8 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
         isRunning,
         ballPosition,
         drawStrokes,
+        awayMemo,
+        homeMemo,
       };
       saveMatch({
         id: matchId,
@@ -142,6 +152,8 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
     isRunning,
     ballPosition,
     drawStrokes,
+    awayMemo,
+    homeMemo,
   ]);
 
   function getSetter(team: "home" | "away") {
@@ -216,8 +228,15 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
     setHomeName(awayName);
     setAwayScore(homeScore);
     setHomeScore(awayScore);
+    setAwayMemo(homeMemo);
+    setHomeMemo(awayMemo);
     setBallPosition((pos) => ({ x: 100 - pos.x, y: pos.y }));
     setSelection(null);
+    setOpenMemo(null);
+  }
+
+  function toggleMemo(side: "left" | "right") {
+    setOpenMemo((current) => (current === side ? null : side));
   }
 
   function swapPlayers(team: "home" | "away", pitchSlotId: string, benchSlotId: string) {
@@ -302,7 +321,7 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col overflow-x-hidden">
       <div className="mb-0 flex shrink-0 items-start justify-between gap-1 pt-1 sm:gap-2 sm:pt-1.5">
         <TeamSettings
           side="left"
@@ -365,7 +384,7 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
         />
       </div>
 
-      <div className="mt-0.5 flex min-h-0 flex-1 items-stretch pb-1 sm:pb-1.5">
+      <div className="relative mt-0.5 flex min-h-0 flex-1 items-stretch overflow-x-hidden pb-1 sm:pb-1.5">
         <PlayerBench
           side="left"
           label="左サブ"
@@ -428,7 +447,46 @@ export function TacticsBoard({ matchId, onSaveStatus }: TacticsBoardProps) {
             updatePlayer("home", "bench", slotId, "number", number)
           }
         />
+
+        {openMemo === null && (
+          <>
+            <MemoToggleButton
+              side="left"
+              active={false}
+              teamColor={awayColor}
+              hasContent={awayMemo.trim().length > 0}
+              onClick={() => toggleMemo("left")}
+            />
+            <MemoToggleButton
+              side="right"
+              active={false}
+              teamColor={homeColor}
+              hasContent={homeMemo.trim().length > 0}
+              onClick={() => toggleMemo("right")}
+            />
+          </>
+        )}
       </div>
+
+      <MemoBackdrop open={openMemo !== null} onClose={() => setOpenMemo(null)} />
+      <AnalysisMemoPanel
+        side="left"
+        open={openMemo === "left"}
+        title={awayName.trim() || "左サイド"}
+        teamColor={awayColor}
+        value={awayMemo}
+        onChange={setAwayMemo}
+        onClose={() => setOpenMemo(null)}
+      />
+      <AnalysisMemoPanel
+        side="right"
+        open={openMemo === "right"}
+        title={homeName.trim() || "右サイド"}
+        teamColor={homeColor}
+        value={homeMemo}
+        onChange={setHomeMemo}
+        onClose={() => setOpenMemo(null)}
+      />
     </div>
   );
 }
