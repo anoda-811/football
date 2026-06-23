@@ -137,21 +137,21 @@ export function PlayerMarker({
   }
 
   const pitchCircleClass =
-    "h-[clamp(1.75rem,6.5cqw,3.25rem)] w-[clamp(1.75rem,6.5cqw,3.25rem)] text-[clamp(0.65rem,2.8cqw,1rem)]";
-  const benchCircleClass = "h-10 w-10 text-sm sm:h-11 sm:w-11 sm:text-base";
+    "h-[clamp(1.55rem,5.8cqw,2.85rem)] w-[clamp(1.55rem,5.8cqw,2.85rem)] text-[clamp(0.6rem,2.5cqw,0.9rem)]";
+  const benchCircleClass = "h-9 w-9 text-sm sm:h-10 sm:w-10 sm:text-sm";
   const sizeClass = variant === "pitch" ? pitchCircleClass : benchCircleClass;
   const nameWrapClass =
     variant === "pitch"
-      ? "mt-0.5 w-[clamp(4rem,14cqw,8rem)]"
-      : "mt-0.5 w-[5rem] sm:w-[6rem]";
+      ? "mt-0.5 w-[clamp(3.5rem,12cqw,7rem)]"
+      : "mt-0.5 w-[4.5rem] sm:w-[5.5rem]";
   const nameInputClass =
     variant === "pitch"
-      ? "w-full text-[clamp(0.6rem,2.4cqw,0.85rem)]"
+      ? "w-full text-[clamp(0.55rem,2.1cqw,0.8rem)]"
       : "w-full text-xs sm:text-sm";
   const nameHitClass =
     variant === "pitch"
-      ? "w-[clamp(2.5rem,9cqw,5rem)]"
-      : "w-[3.25rem] sm:w-[4rem]";
+      ? "w-[clamp(2.25rem,8cqw,4.5rem)]"
+      : "w-[3rem] sm:w-[3.75rem]";
   const nameColorClass =
     variant === "pitch"
       ? "text-black placeholder:text-gray-400"
