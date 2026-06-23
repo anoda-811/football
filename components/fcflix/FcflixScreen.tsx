@@ -92,7 +92,7 @@ export function FcflixScreen() {
   return (
     <div className="fcflix-root min-h-dvh bg-[#141414] text-white">
       <div id="fcflix-top" className="relative h-[100dvh] min-h-[40rem] scroll-mt-0">
-        <FeaturedHero video={heroVideo} />
+        <FeaturedHero video={heroVideo} suspendPlayback={playingVideo !== null} />
 
         <div className="pointer-events-none absolute inset-0 z-10 grid min-w-0 grid-rows-[3.5rem_minmax(0,1fr)_auto]">
           <div aria-hidden />

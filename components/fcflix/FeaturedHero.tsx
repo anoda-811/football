@@ -12,6 +12,8 @@ import { useEffect, useRef, useState } from "react";
 
 type FeaturedHeroProps = {
   video: FcflixVideo;
+  /** モーダル再生中など、ヒーローを止める */
+  suspendPlayback?: boolean;
 };
 
 const YT_STATE_PLAYING = 1;
@@ -27,10 +29,11 @@ function saveHeroAudioPreference(enabled: boolean) {
   localStorage.setItem(HERO_AUDIO_STORAGE_KEY, enabled ? "1" : "0");
 }
 
-export function FeaturedHero({ video }: FeaturedHeroProps) {
+export function FeaturedHero({ video, suspendPlayback = false }: FeaturedHeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerHostRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YT.Player | null>(null);
+  const suspendRef = useRef(suspendPlayback);
   const [muted, setMuted] = useState(true);
   const [playerReady, setPlayerReady] = useState(false);
   const [playerSize, setPlayerSize] = useState({ width: 0, height: 0 });
@@ -65,6 +68,19 @@ export function FeaturedHero({ video }: FeaturedHeroProps) {
       window.removeEventListener("resize", updateSize);
     };
   }, []);
+
+  useEffect(() => {
+    suspendRef.current = suspendPlayback;
+    const player = playerRef.current;
+    if (!player || !playerReady) return;
+
+    if (suspendPlayback) {
+      player.stopVideo();
+      return;
+    }
+
+    player.playVideo();
+  }, [suspendPlayback, playerReady]);
 
   useEffect(() => {
     if (!layoutReady) return;
@@ -124,7 +140,9 @@ export function FeaturedHero({ video }: FeaturedHeroProps) {
               }
 
               applyBestPlaybackQuality(event.target);
-              event.target.playVideo();
+              if (!suspendRef.current) {
+                event.target.playVideo();
+              }
               setPlayerReady(true);
 
               if (preferAudio) {
@@ -146,7 +164,9 @@ export function FeaturedHero({ video }: FeaturedHeroProps) {
                 applyBestPlaybackQuality(event.target);
               }
               if (event.data === YT_STATE_PAUSED) {
-                event.target.playVideo();
+                if (!suspendRef.current) {
+                  event.target.playVideo();
+                }
               }
             },
           },

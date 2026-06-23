@@ -16,6 +16,8 @@ declare namespace YT {
     unMute(): void;
     isMuted(): boolean;
     playVideo(): void;
+    pauseVideo(): void;
+    stopVideo(): void;
     getPlayerState(): number;
     setSize(width: number, height: number): void;
     setPlaybackQuality(suggestedQuality: string): void;
