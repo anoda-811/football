@@ -17,6 +17,7 @@ import { getMatch, saveMatch } from "@/lib/matchStorage";
 import { buildTeamFromPreset, getTeamPreset } from "@/lib/teamPresets";
 import { AnalysisMemoPanel, MemoBackdrop, MemoToggleButton } from "./AnalysisMemoPanel";
 import { DrawingToolbar, type DrawStroke, type DrawTool, type PenColor } from "./DrawingToolbar";
+import { MobileBoardScaler } from "./MobileBoardScaler";
 import { PitchDrawing } from "./PitchDrawing";
 import { PlayerBench } from "./PlayerBench";
 import { PlayerMarker } from "./PlayerMarker";
@@ -354,7 +355,8 @@ export function TacticsBoard({ matchId, matchTitle, onSaveStatus }: TacticsBoard
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-x-hidden">
-      <div className="relative grid min-h-0 flex-1 grid-cols-[auto_minmax(0,1fr)_auto] grid-rows-[auto_minmax(0,1fr)] gap-x-1 overflow-x-hidden pb-1 sm:gap-x-2 sm:pb-1.5">
+      <MobileBoardScaler>
+        <div className="tactics-board-grid relative grid min-h-0 flex-1 grid-cols-[auto_minmax(0,1fr)_auto] grid-rows-[auto_minmax(0,1fr)] gap-x-1 overflow-x-hidden pb-1 sm:gap-x-2 sm:pb-1.5">
         <div className={`${sideColumnBase} pt-1.5 sm:pt-2`}>
           <TeamSettings
             side="left"
@@ -502,7 +504,8 @@ export function TacticsBoard({ matchId, matchTitle, onSaveStatus }: TacticsBoard
             />
           </>
         )}
-      </div>
+        </div>
+      </MobileBoardScaler>
 
       <MemoBackdrop open={openMemo !== null} onClose={() => setOpenMemo(null)} />
       <AnalysisMemoPanel
