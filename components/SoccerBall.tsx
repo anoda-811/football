@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useId, useRef } from "react";
 
 const DRAG_THRESHOLD = 6;
 
@@ -15,12 +15,52 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
+function pentagonPoints(
+  cx: number,
+  cy: number,
+  radius: number,
+  rotationDeg: number,
+): string {
+  return Array.from({ length: 5 }, (_, i) => {
+    const angle = ((rotationDeg + i * 72 - 90) * Math.PI) / 180;
+    const x = cx + radius * Math.cos(angle);
+    const y = cy + radius * Math.sin(angle);
+    return `${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(" ");
+}
+
+function hexagonPoints(
+  cx: number,
+  cy: number,
+  radius: number,
+  rotationDeg: number,
+): string {
+  return Array.from({ length: 6 }, (_, i) => {
+    const angle = ((rotationDeg + i * 60 - 90) * Math.PI) / 180;
+    const x = cx + radius * Math.cos(angle);
+    const y = cy + radius * Math.sin(angle);
+    return `${x.toFixed(2)},${y.toFixed(2)}`;
+  }).join(" ");
+}
+
+const COS36 = Math.cos((36 * Math.PI) / 180);
+const COS30 = Math.cos((30 * Math.PI) / 180);
+const SIN36 = Math.sin((36 * Math.PI) / 180);
+const PANEL_ANGLES = [-54, 18, 90, 162, 234] as const;
+const PENTAGON_RADIUS = 12.6;
+const HEXAGON_RADIUS = PENTAGON_RADIUS * 2 * SIN36;
+const HEXAGON_DISTANCE = PENTAGON_RADIUS * COS36 + HEXAGON_RADIUS * COS30;
+const OUTER_PENTAGON_DISTANCE =
+  PENTAGON_RADIUS * COS36 + HEXAGON_RADIUS * 2 * COS30;
+const PANEL_STROKE = 1;
+
 export function SoccerBall({
   x,
   y,
   pitchRef,
   onPositionChange,
 }: SoccerBallProps) {
+  const clipId = useId();
   const dragOffset = useRef({ x: 0, y: 0 });
   const pointerStart = useRef({ x: 0, y: 0 });
   const isDragging = useRef(false);
@@ -66,30 +106,71 @@ export function SoccerBall({
       style={{ left: `${x}%`, top: `${y}%` }}
     >
       <div
-        className="flex h-[clamp(1.5rem,4.5cqw,2.5rem)] w-[clamp(1.5rem,4.5cqw,2.5rem)] items-center justify-center rounded-full bg-white shadow-lg ring-2 ring-gray-300"
+        className="h-[clamp(1.5rem,4.5cqw,2.5rem)] w-[clamp(1.5rem,4.5cqw,2.5rem)] overflow-hidden rounded-full shadow-md"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         title="ドラッグでボールを移動"
         aria-label="サッカーボール"
       >
-        <svg
-          viewBox="0 0 24 24"
-          className="h-[80%] w-[80%]"
-          aria-hidden
-        >
-          <circle cx="12" cy="12" r="11" fill="white" stroke="#333" strokeWidth="0.8" />
-          <path
-            d="M12 2 L14.5 8.5 L12 12 L9.5 8.5 Z M12 22 L9.5 15.5 L12 12 L14.5 15.5 Z M2 12 L8.5 9.5 L12 12 L8.5 14.5 Z M22 12 L15.5 14.5 L12 12 L15.5 9.5 Z"
-            fill="#333"
-          />
-          <path
-            d="M12 12 L8.5 9.5 L9.5 8.5 L12 12 L14.5 8.5 L15.5 9.5 Z"
-            fill="#333"
-          />
-          <path
-            d="M12 12 L9.5 14.5 L9.5 15.5 L12 12 L14.5 15.5 L14.5 14.5 Z"
-            fill="#333"
+        <svg viewBox="0 0 100 100" className="h-full w-full" aria-hidden>
+          <defs>
+            <clipPath id={clipId}>
+              <circle cx="50" cy="50" r="49" />
+            </clipPath>
+          </defs>
+          <g clipPath={`url(#${clipId})`}>
+            <circle cx="50" cy="50" r="49" fill="#fff" />
+            {PANEL_ANGLES.map((angle) => {
+              const rad = (angle * Math.PI) / 180;
+              const hexCx = 50 + HEXAGON_DISTANCE * Math.cos(rad);
+              const hexCy = 50 + HEXAGON_DISTANCE * Math.sin(rad);
+              return (
+                <polygon
+                  key={`hex-${angle}`}
+                  points={hexagonPoints(hexCx, hexCy, HEXAGON_RADIUS, angle + 180)}
+                  fill="#fff"
+                  stroke="#111"
+                  strokeWidth={PANEL_STROKE}
+                  strokeLinejoin="round"
+                />
+              );
+            })}
+            <polygon
+              points={pentagonPoints(50, 50, PENTAGON_RADIUS, 0)}
+              fill="#111"
+              stroke="#111"
+              strokeWidth={PANEL_STROKE}
+              strokeLinejoin="round"
+            />
+            {PANEL_ANGLES.map((angle) => {
+              const rad = (angle * Math.PI) / 180;
+              const pentCx = 50 + OUTER_PENTAGON_DISTANCE * Math.cos(rad);
+              const pentCy = 50 + OUTER_PENTAGON_DISTANCE * Math.sin(rad);
+              return (
+                <polygon
+                  key={`pent-${angle}`}
+                  points={pentagonPoints(
+                    pentCx,
+                    pentCy,
+                    PENTAGON_RADIUS,
+                    angle + 90,
+                  )}
+                  fill="#111"
+                  stroke="#111"
+                  strokeWidth={PANEL_STROKE}
+                  strokeLinejoin="round"
+                />
+              );
+            })}
+          </g>
+          <circle
+            cx="50"
+            cy="50"
+            r="49"
+            fill="none"
+            stroke="#111"
+            strokeWidth={PANEL_STROKE}
           />
         </svg>
       </div>
