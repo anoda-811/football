@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Football Tactics",
-  description: "サッカー戦術ボードアプリ",
+  title: "Football Lab",
+  description: "サッカー系アプリのポータル",
 };
 
 export default function RootLayout({

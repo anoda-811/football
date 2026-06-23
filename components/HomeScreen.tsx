@@ -1,5 +1,6 @@
 "use client";
 
+import { AppListBackButton } from "@/components/AppListBackButton";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -70,7 +71,10 @@ export function HomeScreen() {
 
   return (
     <div className="flex h-dvh flex-col bg-white dark:bg-gray-950">
-      <main className="mx-auto flex h-full w-full max-w-lg flex-col px-6 py-10 sm:py-14">
+      <header className="shrink-0 border-b border-gray-200 px-4 py-2 dark:border-gray-800 sm:px-6">
+        <AppListBackButton />
+      </header>
+      <main className="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col px-6 py-6 sm:py-8">
         <div className="flex flex-col items-center text-center">
           <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-600 text-3xl shadow-md sm:h-20 sm:w-20 sm:text-4xl">
             ⚽

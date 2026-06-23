@@ -35,3 +35,48 @@ body {
   min-height: 32rem;
   flex: none;
 }
+
+html:has(.fcflix-root),
+html:has(.fcflix-root) body {
+  background: #141414;
+  scrollbar-color: #52525b #1f1f1f;
+  min-height: 100%;
+  height: auto;
+  overflow-y: auto;
+}
+
+html:has(.fcflix-root)::-webkit-scrollbar {
+  width: 10px;
+}
+
+html:has(.fcflix-root)::-webkit-scrollbar-track {
+  background: #1f1f1f;
+}
+
+html:has(.fcflix-root)::-webkit-scrollbar-thumb {
+  background: #52525b;
+  border-radius: 9999px;
+  border: 2px solid #1f1f1f;
+}
+
+html:has(.fcflix-root)::-webkit-scrollbar-thumb:hover {
+  background: #71717a;
+}
+
+.fcflix-root * {
+  scrollbar-color: #52525b #1f1f1f;
+}
+
+.fcflix-root *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.fcflix-root *::-webkit-scrollbar-track {
+  background: #1f1f1f;
+}
+
+.fcflix-root *::-webkit-scrollbar-thumb {
+  background: #52525b;
+  border-radius: 9999px;
+}

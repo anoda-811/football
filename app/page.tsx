@@ -1,5 +1,5 @@
-import { HomeScreen } from "@/components/HomeScreen";
+import { AppLauncher } from "@/components/AppLauncher";
 
 export default function Home() {
-  return <HomeScreen />;
+  return <AppLauncher />;
 }
