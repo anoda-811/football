@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { DarkModeToggle } from "@/components/DarkModeToggle";
+import { FcflixAppIcon } from "@/components/fcflix/FcflixAppIcon";
 import { APP_ENTRIES } from "@/lib/apps";
 
 export function AppLauncher() {
@@ -32,9 +33,13 @@ export function AppLauncher() {
                   className="group flex flex-col items-center gap-2 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950"
                 >
                   <span
-                    className={`flex aspect-square w-full max-w-[5.5rem] items-center justify-center rounded-[1.35rem] text-4xl text-white shadow-md transition-transform group-hover:scale-[1.03] group-active:scale-95 sm:max-w-[6rem] sm:text-5xl ${app.iconBgClass}`}
+                    className={`flex aspect-square w-full max-w-[5.5rem] items-center justify-center rounded-[1.35rem] text-4xl text-white transition-transform group-hover:scale-[1.03] group-active:scale-95 sm:max-w-[6rem] sm:text-5xl ${app.iconBgClass} ${
+                      app.id === "fcflix"
+                        ? "border border-red-500/25 shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_0_18px_rgba(229,9,20,0.22)] ring-1 ring-inset ring-white/10"
+                        : "shadow-md"
+                    }`}
                   >
-                    {app.icon}
+                    {app.id === "fcflix" ? <FcflixAppIcon /> : app.icon}
                   </span>
                   <span className="w-full text-center text-xs font-semibold leading-tight text-gray-800 dark:text-gray-200 sm:text-sm">
                     {app.name}

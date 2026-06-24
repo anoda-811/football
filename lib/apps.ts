@@ -21,7 +21,7 @@ export const APP_ENTRIES: AppEntry[] = [
     name: "Fcflix",
     description: "サッカー動画をNetflix風に楽しむ",
     href: "/fcflix",
-    icon: "🎬",
-    iconBgClass: "bg-red-600",
+    icon: "",
+    iconBgClass: "bg-black",
   },
 ];
